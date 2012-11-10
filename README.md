@@ -5,15 +5,17 @@ webcache [![Build Status](https://secure.travis-ci.org/fengmk2/webcache.png)](ht
 
 Web Cache middleware base on `req.url`.
 
+`webcache` can cache all `'text/*'` content type.
+
 You can use any cache store engine which implement `set()` and `get()` methods.
 
 * jscoverage: [98%](http://fengmk2.github.com/coverage/webcache.html)
 
 ## Support Cache Store
 
-* redis
-* mredis
-* tair
+* [redis](https://github.com/mranney/node_redis)
+* [mredis](https://github.com/dead-horse/multi_redis)
+* [tair](https://github.com/sunfang1cn/node-tair) (TODO)
 
 ## Install
 
@@ -26,10 +28,11 @@ $ npm install webcache
 ```js
 var connect = require('connect');
 var webcache = require('webcache');
+var redis = require('redis').createClient();
 var app = connect();
 
 app.use(webcache{
-  webcache.redisStore(redis),
+  webcache.createStore('redis', redis),
   [
     // cache `GET /article/*` response for one hour, ignore querystring params, enable browser cache
     { match: /^\/article\/\w+/, maxAge: 3600000, ignoreQuerystring: true, clientCache: true },

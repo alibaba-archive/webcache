@@ -1,4 +1,10 @@
 
+0.0.3 / 2012-11-10 
+==================
+
+  * add RedisStore support webcache.createStore("redis", redisClient)
+  * add redis test cases
+
 0.0.2 / 2012-11-10 
 ==================
 
