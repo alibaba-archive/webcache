@@ -20,7 +20,7 @@ app._store = webcache.MemoryStore();
 app.use(webcache(
   app._store,
   [
-    { match: /^\/article\/\w+/, maxAge: 3600000, ignoreQuerystring: true },
+    { match: /^\/article\/\w+/, maxAge: 3600000, ignoreQuerystring: true, clientCache: true },
     // cache `GET /` one day
     { match: /^\/$/, maxAge: 100 },
     // cache `GET /commnet[s]` 

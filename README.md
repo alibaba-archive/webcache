@@ -31,8 +31,8 @@ var app = connect();
 app.use(webcache{
   webcache.redisStore(redis),
   [
-    // cache `GET /article/*` response for one hour, ignore querystring params
-    { match: /^\/article\/\w+/, maxAge: 3600000, ignoreQuerystring: true },
+    // cache `GET /article/*` response for one hour, ignore querystring params, enable browser cache
+    { match: /^\/article\/\w+/, maxAge: 3600000, ignoreQuerystring: true, clientCache: true },
     // cache `GET /` one day
     { match: /^\/$/, maxAge: 3600000 * 24 },
     // cache `GET /commnet[s]` 

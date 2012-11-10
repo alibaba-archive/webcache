@@ -16,7 +16,6 @@ var should = require('should');
 var request = require('supertest');
 var app = require('./app');
 var version = 'WebCache' + require('../package.json').version;
-var muk = require('muk');
 
 
 describe('webcache.test.js', function () {
@@ -35,7 +34,6 @@ describe('webcache.test.js', function () {
   });
   afterEach(function () {
     app._store.get = _get;
-    muk.restore();
   });
 
   it('should throw TypeError when params wrong', function () {
@@ -66,15 +64,50 @@ describe('webcache.test.js', function () {
       request(app)
       .get('/article/foo')
       .expect('X-Cache-By', version)
+      .expect('Cache-Control', 'public, max-age=3600')
       .expect('Content-Type', 'text/html')
       .expect('GET /article/foo')
       .expect(200, done);
+
       request(app)
-      .get('/article/foo')
+      .get('/article/foo?t=123123')
+      .expect('X-Cache-By', version)
+      .expect('Cache-Control', 'public, max-age=3600')
+      .expect('Content-Type', 'text/html')
+      .expect('GET /article/foo')
+      .expect(200, done);
+    });
+  });
+
+  it('should cache GET /comments and not cache /comments?foo=bar', function (done) {
+    done = pedding(2, done);
+
+    request(app)
+    .get('/comments')
+    .expect('GET /comments')
+    .expect('Content-Type', 'text/html')
+    .expect(200, function (err, res) {
+      should.not.exist(err);
+      res.headers.should.not.have.property('x-cache-by');
+      request(app)
+      .get('/comments')
       .expect('X-Cache-By', version)
       .expect('Content-Type', 'text/html')
-      .expect('GET /article/foo')
-      .expect(200, done);
+      .expect('GET /comments')
+      .expect(200, function (err, res) {
+        should.not.exist(err);
+        done();
+      });
+
+      request(app)
+      .get('/comments?foo=bar')
+      .expect('Content-Type', 'text/html')
+      .expect('GET /comments?foo=bar')
+      .expect(200, function (err, res) {
+        should.not.exist(err);
+        res.headers.should.not.have.property('x-cache-by');
+        done();
+      });
     });
   });
 
@@ -87,8 +120,9 @@ describe('webcache.test.js', function () {
       .get('/')
       .expect('X-Cache-By', version)
       .expect('GET /')
-      .expect(200, function (err) {
+      .expect(200, function (err, res) {
         should.not.exist(err);
+        res.headers.should.not.have.property('Cache-Control');
         setTimeout(function () {
           request(app)
           .get('/')
@@ -194,13 +228,6 @@ describe('webcache.test.js', function () {
     });
 
     it('should not cache when cache store get() error', function (done) {
-      done = pedding(2, done);
-
-      muk(console, 'error', function (msg, date, stack) {
-        msg.should.include('[webcache][');
-        stack.should.include('mock_get_error');
-        done();
-      });
       request(app)
       .get('/comments/mock_get_error')
       .expect('GET /comments/mock_get_error')
@@ -213,7 +240,15 @@ describe('webcache.test.js', function () {
         .expect(200, function (err, res) {
           should.not.exist(err);
           res.headers.should.not.have.property('x-cache-by');
-          done();
+          app._store.get = _get;
+          request(app)
+          .get('/comments/mock_get_error')
+          .expect('GET /comments/mock_get_error')
+          .expect(200, function (err, res) {
+            should.not.exist(err);
+            res.headers.should.have.property('x-cache-by');
+            done();
+          });
         });
       });
     });

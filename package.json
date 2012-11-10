@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "buffer-concat": "0.0.1",
+    "debug": "0.7.0",
     "eventproxy": "0.1.4"
   },
   "devDependencies": {
@@ -16,7 +17,6 @@
     "supertest": "*",
     "pedding": "*",
     "jscover": "*",
-    "muk": "*",
     "mocha": "*"
   },
   "repository": {
