@@ -13,6 +13,12 @@
 var urlparse = require('url').parse;
 var connect = require('connect');
 var webcache = require('../');
+var path = require('path');
+var fs = require('fs');
+
+var textpath = path.join(__dirname, 'webcache.test.js');
+var LARGE_TEXT = fs.readFileSync(textpath);
+var IMAGE = fs.readFileSync(path.join(path.dirname(__dirname), 'logo.png'));
 
 exports.create = function (store) {
   var app = connect();
@@ -46,6 +52,16 @@ exports.create = function (store) {
     if (info.query.nocache) {
       res.setHeader('Cache-Control', 'no-cache');
     }
+
+    if (req.url === '/article/large') {
+      return res.end(LARGE_TEXT); 
+    }
+
+    if (req.url === '/article/image') {
+      res.setHeader('Content-Type', 'image/png');
+      return res.end(IMAGE);
+    }
+
     res.end(req.method + ' ' + req.url);
   });
   return app;

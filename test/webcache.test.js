@@ -10,12 +10,21 @@
  * Module dependencies.
  */
 
+var fs = require('fs');
 var webcache = require('../');
 var pedding = require('pedding');
 var should = require('should');
 var request = require('supertest');
 var server = require('./server');
 var redis = require('redis');
+var mredis = require('mredis');
+var interceptor = require('interceptor');
+
+var mockRedisServer = interceptor.create('localhost:6379');
+mockRedisServer.listen(6380);
+var mredisClient = mredis.createClient({
+  server: [ 'localhost:6379', 'localhost:6380' ]
+});
 var redisClient = redis.createClient();
 var version = 'WebCache' + require('../package.json').version;
 
@@ -28,6 +37,7 @@ describe('webcache.test.js', function () {
   var stores = [
     [ 'MemoryStore', webcache.MemoryStore() ],
     [ 'RedisStore', webcache.createStore('redis', redisClient) ],
+    [ 'MRedis', webcache.createStore('redis', mredisClient) ],
   ];
 
   stores.forEach(function (item) {
@@ -39,6 +49,8 @@ describe('webcache.test.js', function () {
         var keys = [
           '/article/foo',
           '/comments/foobar',
+          '/article/image',
+          '/article/large',
           '/comments/foobar?foo=bar',
           '/'
         ];
@@ -106,6 +118,36 @@ describe('webcache.test.js', function () {
           .expect('Cache-Control', 'public, max-age=3600')
           .expect('Content-Type', 'text/html')
           .expect('GET /article/foo')
+          .expect(200, done);
+        });
+      });
+
+      it('should cache GET /article/large', function (done) {
+        done = pedding(2, done);
+
+        var content = fs.readFileSync(__filename, 'utf8');
+
+        request(app)
+        .get('/article/large')
+        .expect(content)
+        .expect('Content-Type', 'text/html')
+        .expect(200, function (err, res) {
+          should.not.exist(err);
+          res.headers.should.not.have.property('X-Cache-By');
+          request(app)
+          .get('/article/large')
+          .expect('X-Cache-By', version)
+          .expect('Cache-Control', 'public, max-age=3600')
+          .expect('Content-Type', 'text/html')
+          .expect(content)
+          .expect(200, done);
+
+          request(app)
+          .get('/article/large?t=123123')
+          .expect('X-Cache-By', version)
+          .expect('Cache-Control', 'public, max-age=3600')
+          .expect('Content-Type', 'text/html')
+          .expect(content)
           .expect(200, done);
         });
       });
@@ -294,6 +336,7 @@ describe('webcache.test.js', function () {
             .post('/')
             .expect('POST /')
             .expect(200, function (err, res) {
+              should.not.exist(err);
               res.headers.should.not.have.property('x-cache-by');
               done(err);
             });
@@ -310,6 +353,7 @@ describe('webcache.test.js', function () {
             .del('/')
             .expect('DELETE /')
             .expect(200, function (err, res) {
+              should.not.exist(err);
               res.headers.should.not.have.property('x-cache-by');
               done(err);
             });
@@ -326,6 +370,23 @@ describe('webcache.test.js', function () {
             .put('/')
             .expect('PUT /')
             .expect(200, function (err, res) {
+              should.not.exist(err);
+              res.headers.should.not.have.property('x-cache-by');
+              done(err);
+            });
+          });
+        });
+
+        it('should not cache /article/image request', function (done) {
+          request(app)
+          .get('/article/image')
+          .expect(200, function (err, res) {
+            should.not.exist(err);
+            res.headers.should.not.have.property('x-cache-by');
+            request(app)
+            .get('/article/image')
+            .expect(200, function (err, res) {
+              should.not.exist(err);
               res.headers.should.not.have.property('x-cache-by');
               done(err);
             });
@@ -334,6 +395,12 @@ describe('webcache.test.js', function () {
 
       });
     });
+  });
+
+  it('should createStore() throw error when cache type not support', function () {
+    (function () {
+      webcache.createStore('tair', {});
+    }).should.throw('tair not support, please implement the get() and set() methods yourself');
   });
   
 });
