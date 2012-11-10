@@ -50,6 +50,8 @@ describe('webcache.test.js', function () {
           '/article/foo',
           '/comments/foobar',
           '/article/image',
+          '/article/json',
+          '/article/javascript',
           '/article/large',
           '/comments/foobar?foo=bar',
           '/'
@@ -207,6 +209,67 @@ describe('webcache.test.js', function () {
               });
             }, 2000);
           });
+        });
+      });
+
+      it('should cache / and ignore querystring effect', function (done) {
+        request(app)
+        .get('/')
+        .expect('GET /')
+        .expect(200, function (err, res) {
+          request(app)
+          .get('/?foo=bar')
+          .expect('X-Cache-By', version)
+          .expect('GET /')
+          .expect(200, done);
+        });
+      });
+
+      it('should cache /article/javascript?content_type=application/javascript', function (done) {
+        request(app)
+        .get('/article/javascript?content_type=application/javascript')
+        .expect('Content-Type', 'application/javascript')
+        .expect(200, function (err, res) {
+          should.not.exist(err);
+          var body = '';
+          res.on('data', function (chunk) {
+            body += chunk.toString();
+          });
+          res.on('end', function () {
+            body.should.equal('GET /article/javascript?content_type=application%2Fjavascript');
+            request(app)
+            .get('/article/javascript?content_type=application/javascript')
+            .expect('X-Cache-By', version)
+            .expect('Content-Type', 'application/javascript')
+            .expect(200, function (err, res) {
+              should.not.exist(err);
+              var body = '';
+              res.on('data', function (chunk) {
+                body += chunk.toString();
+              });
+              res.on('end', function () {
+                body.should.equal('GET /article/javascript?content_type=application%2Fjavascript');
+                done();
+              });
+            });
+          });
+        });
+      });
+
+      it('should cache /article/json?content_type=application/json', function (done) {
+        request(app)
+        .get('/article/json?content_type=application/json')
+        .expect('GET /article/json?content_type=application%2Fjson')
+        .expect('Content-Type', 'application/json')
+        .expect(200, function (err, res) {
+          should.not.exist(err);
+          res.headers.should.not.have.property('x-cache-by');
+          request(app)
+          .get('/article/json?content_type=application/json')
+          .expect('GET /article/json?content_type=application%2Fjson')
+          .expect('Content-Type', 'application/json')
+          .expect('X-Cache-By', version)
+          .expect(200, done);
         });
       });
 

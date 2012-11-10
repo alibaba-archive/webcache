@@ -5,7 +5,7 @@ webcache [![Build Status](https://secure.travis-ci.org/fengmk2/webcache.png)](ht
 
 Web Cache middleware base on `req.url`.
 
-`webcache` can cache all `'text/*'` content type.
+`webcache` can cache all `'text/*', 'application/javascript', 'application/json'` content type.
 
 You can use any cache store engine which implement `set()` and `get()` methods.
 

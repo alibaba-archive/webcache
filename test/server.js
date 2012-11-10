@@ -29,7 +29,7 @@ exports.create = function (store) {
     [
       { match: /^\/article\/\w+/, maxAge: 3600000, ignoreQuerystring: true, clientCache: true },
       // cache `GET /` one day
-      { match: /^\/$/, maxAge: 1000 },
+      { match: /^\/$/, maxAge: 1000, ignoreQuerystring: true },
       // cache `GET /commnet[s]` 
       { match: /^\/comments?/ }, // 5 minutes cache
     ],
