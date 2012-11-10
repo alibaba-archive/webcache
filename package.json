@@ -17,6 +17,7 @@
     "supertest": "*",
     "pedding": "*",
     "jscover": "*",
+    "redis": "*",
     "mocha": "*"
   },
   "repository": {
