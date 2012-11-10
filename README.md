@@ -7,7 +7,7 @@ Web Cache middleware base on `req.url`.
 
 You can use any cache store engine which implement `set()` and `get()` methods.
 
-* jscoverage: [100%](http://fengmk2.github.com/coverage/webcache.html)
+* jscoverage: [98%](http://fengmk2.github.com/coverage/webcache.html)
 
 ## Support Cache Store
 
