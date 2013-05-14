@@ -21,9 +21,9 @@ var mredis = require('mredis');
 var interceptor = require('interceptor');
 
 var mockRedisServer = interceptor.create('localhost:6379');
-mockRedisServer.listen(6380);
+mockRedisServer.listen(63801);
 var mredisClient = mredis.createClient({
-  server: [ 'localhost:6379', 'localhost:6380' ]
+  server: [ 'localhost:6379', 'localhost:63801' ]
 });
 var redisClient = redis.createClient();
 var version = 'WebCache' + require('../package.json').version;
