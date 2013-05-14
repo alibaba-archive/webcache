@@ -1,4 +1,13 @@
 
+0.0.5 / 2013-05-14 
+==================
+
+  * fixed test cases
+  * use blanket instead of webcache
+  * Merge pull request #2 from sunfang1cn/master
+  * fix issues for https://github.com/fengmk2/webcache/pull/2
+  * add ignore one or some query param key options
+
 0.0.4 / 2012-11-10 
 ==================
 

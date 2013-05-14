@@ -47,6 +47,21 @@ app.use(webcache{
 // ... ignore ...
 ```
 
+## Authors
+
+```bash
+$ git summary 
+
+ project  : webcache
+ repo age : 6 months
+ active   : 4 days
+ commits  : 15
+ files    : 13
+ authors  : 
+    13  fengmk2                 86.7%
+     2  sunfang1cn              13.3%
+```
+
 ## License 
 
 (The MIT License)
