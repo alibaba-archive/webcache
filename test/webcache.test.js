@@ -253,27 +253,16 @@ describe('webcache.test.js', function () {
         .expect('Content-Type', 'application/javascript')
         .expect(200, function (err, res) {
           should.not.exist(err);
-          var body = '';
-          res.on('data', function (chunk) {
-            body += chunk.toString();
-          });
-          res.on('end', function () {
-            body.should.equal('GET /article/javascript?content_type=application%2Fjavascript');
-            request(app)
-            .get('/article/javascript?content_type=application/javascript')
-            .expect('X-Cache-By', version)
-            .expect('Content-Type', 'application/javascript')
-            .expect(200, function (err, res) {
-              should.not.exist(err);
-              var body = '';
-              res.on('data', function (chunk) {
-                body += chunk.toString();
-              });
-              res.on('end', function () {
-                body.should.equal('GET /article/javascript?content_type=application%2Fjavascript');
-                done();
-              });
-            });
+          res.text.should.equal('GET /article/javascript?content_type=application%2Fjavascript');
+          
+          request(app)
+          .get('/article/javascript?content_type=application/javascript')
+          .expect('X-Cache-By', version)
+          .expect('Content-Type', 'application/javascript')
+          .expect(200, function (err, res) {
+            should.not.exist(err);
+            res.text.should.equal('GET /article/javascript?content_type=application%2Fjavascript');
+            done();
           });
         });
       });
