@@ -224,6 +224,28 @@ describe('webcache.test.js', function () {
           .expect(200, done);
         });
       });
+   
+      it('should cache /comments and ignore ?spm=xxxx query params', function (done) {
+        request(app)
+        .get('/comments?spm=2.3.4.5&app=123')
+        .expect(200, function (err, res) {
+          request(app)
+          .get('/comments?app=123&spm=1.2.3.4')
+          .expect('X-Cache-By', version)
+          .expect(200, done);
+        });
+      });
+      
+      it('should cache /comments and ignore ?sp2=xxxx query params', function (done) {
+        request(app)
+        .get('/comments?sp2=test&app=1243&sc=cdg2')
+        .expect(200, function (err, res) {
+          request(app)
+          .get('/comments?app=1243&sc=cdg2&sp2=12.3.4')
+          .expect('X-Cache-By', version)
+          .expect(200, done);
+        });
+      });
 
       it('should cache /article/javascript?content_type=application/javascript', function (done) {
         request(app)
@@ -467,3 +489,4 @@ describe('webcache.test.js', function () {
   });
   
 });
+

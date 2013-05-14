@@ -33,7 +33,7 @@ exports.create = function (store) {
       // cache `GET /commnet[s]` 
       { match: /^\/comments?/ }, // 5 minutes cache
     ],
-    { version: 2012 }
+    { version: 2012, ignoreQueryParams: ['spm', 'sp2'] }
   ));
 
   app.use(function (req, res, next) {
