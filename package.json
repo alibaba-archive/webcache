@@ -6,12 +6,17 @@
   "scripts": {
     "test": "make test",
     "test-cov": "make test-cov",
-    "blanket": { "pattern": "webcache/lib/" }
+    "blanket": {
+      "pattern": "webcache/lib/"
+    },
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "buffer-concat": ">=0.0.1",
     "debug": ">=0.7.2",
-    "eventproxy": ">=0.2.2"
+    "eventproxy": ">=0.2.2",
+    "snyk": "^1.31.0"
   },
   "devDependencies": {
     "blanket": "*",
@@ -33,5 +38,6 @@
     "webcache"
   ],
   "author": "fengmk2 <fengmk2@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "snyk": true
 }
